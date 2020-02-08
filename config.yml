@@ -1,0 +1,7 @@
+token: "" # Discord Token
+channel: "" # Discord Channel
+lobby_request_channel: "" # Discord Request Channel
+lobby_status_channel: "" # Discord Debug Channel
+moderator_id: "" # Discord Admin ID
+guild_id: "" # Discord Server ID
+rcon_password: "" #SRCDS Password
