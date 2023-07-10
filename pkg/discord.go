@@ -6,7 +6,6 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"strconv"
 	"syscall"
 )
 
@@ -63,8 +62,8 @@ func loadGuildCommandsViaDB() {
 	}
 
 	for _, guild := range guilds {
-		fmt.Println(guild.Id)
-		registerCommandsForGuild(strconv.FormatInt(guild.Id, 10))
+		fmt.Println(guild.GuildId)
+		registerCommandsForGuild(guild.GuildId)
 	}
 }
 
