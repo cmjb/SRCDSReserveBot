@@ -3,6 +3,8 @@ module github.com/cmjb/SRCDSReserveBot
 go 1.23
 
 require (
+	github.com/Acidic9/go-steam v0.0.0-20180123160439-47418f6637e6 // indirect
+	github.com/Sirupsen/logrus v1.0.6 // indirect
 	github.com/bwmarrin/discordgo v0.27.1 // indirect
 	github.com/go-pg/migrations/v8 v8.1.0 // indirect
 	github.com/go-pg/pg v8.0.7+incompatible // indirect
@@ -11,6 +13,7 @@ require (
 	github.com/golang/protobuf v1.4.3 // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
+	github.com/kidoman/go-steam v0.0.0-20141221015629-2e40e0d508cb // indirect
 	github.com/tmthrgd/go-hex v0.0.0-20190904060850-447a3041c3bc // indirect
 	github.com/vmihailenco/bufpool v0.1.11 // indirect
 	github.com/vmihailenco/msgpack/v5 v5.0.0-beta.1 // indirect
@@ -19,6 +22,7 @@ require (
 	golang.org/x/crypto v0.0.0-20210421170649-83a5a9bb288b // indirect
 	golang.org/x/net v0.0.0-20210226172049-e18ecbb05110 // indirect
 	golang.org/x/sys v0.0.0-20201119102817-f84b799fce68 // indirect
+	golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.25.0 // indirect
 	mellium.im/sasl v0.3.1 // indirect

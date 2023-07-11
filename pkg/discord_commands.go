@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"log"
 	"regexp"
 )
 
@@ -41,6 +43,23 @@ var (
 		},
 	}
 
+	rconCommand = discordgo.ApplicationCommand{
+
+		Name:                     "set-rcon-password",
+		Description:              "Set a rcon password",
+		DefaultMemberPermissions: &defaultMemberPermissions,
+		DMPermission:             &dmPermission,
+		Options: []*discordgo.ApplicationCommandOption{
+
+			{
+				Type:        discordgo.ApplicationCommandOptionString,
+				Name:        "rcon-password",
+				Description: "RCON Password",
+				Required:    true,
+			},
+		},
+	}
+
 	commandHandlers = map[string]func(session *discordgo.Session, interaction *discordgo.InteractionCreate){
 		"register-server": func(session *discordgo.Session, interaction *discordgo.InteractionCreate) {
 			options := interaction.ApplicationCommandData().Options
@@ -71,6 +90,18 @@ var (
 							Content: "Server saved. ip: " + serverIp,
 						},
 					})
+					channel, err := session.UserChannelCreate(interaction.Interaction.Member.User.ID)
+					if err != nil {
+						fmt.Println(err)
+					}
+
+					_, err = session.ChannelMessageSend(channel.ID, "Please enter a RCON password.")
+
+					_, err = discordGlobal.ApplicationCommandCreate(discordGlobal.State.User.ID, channel.GuildID, &rconCommand)
+					if err != nil {
+						log.Panicf("Cannot create '%v' command: %v", rconCommand.Name, err)
+					}
+
 				} else {
 					session.InteractionRespond(interaction.Interaction, &discordgo.InteractionResponse{
 						Type: discordgo.InteractionResponseChannelMessageWithSource,

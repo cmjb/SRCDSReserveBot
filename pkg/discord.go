@@ -79,7 +79,12 @@ func registerCommandsForGuild(guildId string) {
 }
 
 func updateStatus() {
-	err := discordGlobal.UpdateGameStatus(0, "0 servers online")
+	err, numberOnline := getNumberOfOnlineServers()
+	if err != nil {
+		fmt.Println(fmt.Sprintf("Error updating Discord status: %s", err))
+		return
+	}
+	err = discordGlobal.UpdateGameStatus(0, string(rune(numberOnline))+" servers online")
 	if err != nil {
 		fmt.Println(fmt.Sprintf("Error updating Discord status: %s", err))
 		return

@@ -99,14 +99,21 @@ func getServer(ip string) (error, *Server) {
 
 }
 
+func getAllServers() (error, []Server) {
+	db := db()
+	defer db.Close()
+
+	var servers []Server
+	err := db.Model(&servers).Select()
+
+	return err, servers
+}
+
 func addServer(ip string) (error, *Server) {
 	db := db()
 	defer db.Close()
 
-	err, existingServer := getServer(ip)
-	if err != nil {
-		return err, existingServer
-	}
+	_, existingServer := getServer(ip)
 
 	if existingServer.ServerIp == ip {
 		return errors.New("duplicate server exists"), existingServer
@@ -116,14 +123,59 @@ func addServer(ip string) (error, *Server) {
 		ServerIp: ip,
 	}
 
-	err = db.Insert(server)
+	err := db.Insert(server)
 
 	return err, server
 
 }
 
-func getOnlineServers() {
+func getTempGroupByServerIp(ip string) (error, TempGroup) {
+	var tempgroup TempGroup
+	err, server := getServer(ip)
+	if err != nil {
+		return err, tempgroup
+	}
 
+	db := db()
+	defer db.Close()
+
+	err = db.Model(&tempgroup).Relation("Server").Where("server.id = ? AND active = TRUE", server.Id).Limit(1).Select()
+	return err, tempgroup
+}
+
+func getUser(id string) (error, User) {
+	db := db()
+	defer db.Close()
+
+	var user User
+	err := db.Model(&user).WhereIn("discord_id IN (?)", []string{id}).Limit(1).Select()
+
+	return err, user
+}
+
+func createTempGroup(discordId string) (error, *TempGroup) {
+	db := db()
+	defer db.Close()
+	nowtime := time.Now()
+	expirytime := nowtime.Add(time.Hour * 3)
+	tempgroup := &TempGroup{
+		Owner:        discordId,
+		Active:       true,
+		ReservedTime: nowtime,
+		ExpiryTime:   expirytime,
+	}
+	err := db.Insert(tempgroup)
+	return err, tempgroup
+}
+
+func getNumberOfOnlineServers() (error, int) {
+	db := db()
+	defer db.Close()
+
+	var servers []Server
+	err := db.Model(&servers).Where("active = TRUE").Select()
+
+	return err, len(servers)
 }
 
 func createSchema() error {

@@ -15,6 +15,23 @@ func main() {
 	}
 	discordInit()
 	httpInit()
+
+	err = startUp()
+	if err != nil {
+		fmt.Println("Issue starting up.")
+		fmt.Println(err)
+		dead()
+	}
+}
+
+func startUp() error {
+	err, servers := getAllServers()
+
+	for _, server := range servers {
+		heartbeat(server.ServerIp, server.Password)
+	}
+
+	return err
 }
 
 func dead() {
