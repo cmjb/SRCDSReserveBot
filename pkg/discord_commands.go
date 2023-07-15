@@ -17,7 +17,6 @@ var (
 			DefaultMemberPermissions: &defaultMemberPermissions,
 			DMPermission:             &dmPermission,
 			Options: []*discordgo.ApplicationCommandOption{
-
 				{
 					Type:        discordgo.ApplicationCommandOptionString,
 					Name:        "server-ip",
@@ -40,6 +39,27 @@ var (
 					Required:    true,
 				},
 			},
+		},
+		{
+			Name:                     "register-steamid",
+			Description:              "Register user steam id",
+			DefaultMemberPermissions: &defaultMemberPermissions,
+			DMPermission:             &dmPermission,
+			Options: []*discordgo.ApplicationCommandOption{
+
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "steamid",
+					Description: "Given Steam ID",
+					Required:    true,
+				},
+			},
+		},
+		{
+			Name:                     "reserve-server",
+			Description:              "Reserve server",
+			DefaultMemberPermissions: &defaultMemberPermissions,
+			DMPermission:             &dmPermission,
 		},
 	}
 
@@ -121,6 +141,44 @@ var (
 
 		},
 		"register-commands-in-guild": func(session *discordgo.Session, interaction *discordgo.InteractionCreate) {
+			session.InteractionRespond(interaction.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Content: "Ximf is the only one that can config this at the moment.",
+				},
+			})
+		},
+		"register-steamid": func(session *discordgo.Session, interaction *discordgo.InteractionCreate) {
+
+			options := interaction.ApplicationCommandData().Options
+
+			optionMap := make(map[string]*discordgo.ApplicationCommandInteractionDataOption, len(options))
+
+			for _, opt := range options {
+				optionMap[opt.Name] = opt
+			}
+			steamId := ""
+			if option, ok := optionMap["steamid"]; ok {
+				steamId = option.StringValue()
+			}
+			fmt.Println(steamId)
+			err, result := parseSteamProfile(interaction.Member.User.ID, steamId)
+			if err != nil {
+				fmt.Println(err)
+			}
+			err = session.InteractionRespond(interaction.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Content: result,
+				},
+			})
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+		},
+		"reserve-server": func(session *discordgo.Session, interaction *discordgo.InteractionCreate) {
+
 			session.InteractionRespond(interaction.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{

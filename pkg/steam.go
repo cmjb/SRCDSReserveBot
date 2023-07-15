@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	steamidconv "github.com/Acidic9/go-steam/steamid"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -19,4 +21,22 @@ func isSteamLobby(status string) bool {
 
 func isSourceLobby(status string) bool {
 	return strings.Contains(status, "STEAM_")
+}
+
+func parseSteamProfile(discordId string, url string) (error, string) {
+	splitMessage := regexp.MustCompile("\\s").Split(url, 2)
+	fmt.Println(splitMessage)
+	steamUrlSplit := regexp.MustCompile("[/]+").Split(splitMessage[0], 4)
+	fmt.Println(steamUrlSplit)
+	steam64Id := steamUrlSplit[3]
+	steam64idint64, err := strconv.ParseUint(steam64Id, 10, 64)
+	if err != nil {
+		return err, "Error"
+	}
+	if checkUser(discordId) {
+		return err, "User exists"
+	} else {
+		insertUser(discordId, steam64idint64)
+		return err, "Added user ID: " + steam64Id
+	}
 }

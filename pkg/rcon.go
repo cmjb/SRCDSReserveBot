@@ -33,7 +33,7 @@ func heartbeat(ip string, pass string) {
 
 func scanPlayers(ip string, response string, pass string) {
 	if isSteamLobby(response) {
-		regEx := regexp.MustCompile(`\[U:1:[0-9]+\]`).FindAllString(response, -1)
+		regEx := regexp.MustCompile(`\[U:1:[0-9]+`).FindAllString(response, -1)
 		err, tempgroup := getTempGroupByServerIp(ip)
 		if err != nil {
 			fmt.Println(err)

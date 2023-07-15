@@ -10,7 +10,7 @@ import (
 )
 
 type User struct {
-	Id          int64
+	Id          int64 `pg:",unique"`
 	DiscordId   string
 	SteamId     uint64
 	SteamId32   string
@@ -27,15 +27,17 @@ type Guild struct {
 }
 
 type Server struct {
-	Id       int64
-	ServerIp string `pg:",unique"`
-	Game     string
-	Owner    *User
-	Password string
+	Id          int64  `pg:",unique"`
+	ServerIp    string `pg:",unique"`
+	Game        string
+	Owner       *User
+	Password    string
+	Region      string
+	CreatedTime time.Time
 }
 
 type TempGroup struct {
-	Id           int64
+	Id           int64 `pg:",unique"`
 	DiscordId    []string
 	Server       *Server
 	Owner        string
@@ -153,6 +155,17 @@ func getUser(id string) (error, User) {
 	return err, user
 }
 
+func deleteUser(id string) (error, bool) {
+	db := db()
+	var user User
+	result, err := db.Model(&user).WhereIn("discord_id IN (?)", []string{id}).Limit(1).Delete()
+	fmt.Println(result)
+	if err != nil {
+		return err, false
+	}
+	return err, true
+}
+
 func createTempGroup(discordId string) (error, *TempGroup) {
 	db := db()
 	defer db.Close()
@@ -189,4 +202,39 @@ func createSchema() error {
 		}
 	}
 	return nil
+}
+
+func checkUser(id string) bool {
+	err, _ := getUser(id)
+	if err != nil {
+		if err == pg.ErrNoRows {
+			return false
+		}
+	}
+	return true
+}
+
+func checkServer(ip string) bool {
+	err, _ := getServer(ip)
+	if err != nil {
+		if err == pg.ErrNoRows {
+			return false
+		}
+	}
+	return true
+}
+
+func insertUser(id string, steamid uint64) {
+	db := db()
+	defer db.Close()
+	user := &User{
+		DiscordId: id,
+		SteamId:   steamid,
+		SteamId32: "",
+		Admin:     false,
+	}
+	err := db.Insert(user)
+	if err != nil {
+		panic(err)
+	}
 }
