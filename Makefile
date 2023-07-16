@@ -5,7 +5,7 @@ all:
 install:
 	scripts/install.sh
 
-testa:
+gotest:
 	scripts/make.sh
 	scripts/test.sh
 

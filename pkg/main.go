@@ -14,7 +14,6 @@ func main() {
 		fmt.Println("Error creating schema, maybe it already exists?")
 	}
 	discordInit()
-	httpInit()
 
 	err = startUp()
 	if err != nil {
@@ -22,6 +21,7 @@ func main() {
 		fmt.Println(err)
 		dead()
 	}
+	httpInit()
 }
 
 func startUp() error {

@@ -30,7 +30,9 @@ type Server struct {
 	Id          int64  `pg:",unique"`
 	ServerIp    string `pg:",unique"`
 	Game        string
-	Owner       *User
+	OwnerId     int64
+	Owner       *User `pg:"rel:has-one"`
+	Active      bool
 	Password    string
 	Region      string
 	CreatedTime time.Time
@@ -39,7 +41,8 @@ type Server struct {
 type TempGroup struct {
 	Id           int64 `pg:",unique"`
 	DiscordId    []string
-	Server       *Server
+	ServerId     int64
+	Server       *Server `pg:"rel:has-one"`
 	Owner        string
 	Active       bool
 	ReservedTime time.Time
@@ -141,7 +144,7 @@ func getTempGroupByServerIp(ip string) (error, TempGroup) {
 	db := db()
 	defer db.Close()
 
-	err = db.Model(&tempgroup).Relation("Server").Where("server.id = ? AND active = TRUE", server.Id).Limit(1).Select()
+	err = db.Model(&tempgroup).Relation("Server").Where("server_id = ? AND server.active = TRUE", server.Id).Limit(1).Select()
 	return err, tempgroup
 }
 

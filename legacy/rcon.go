@@ -13,8 +13,8 @@ import (
 	"unsafe"
 
 	steamidconv "github.com/Acidic9/go-steam/steamid"
-	log "github.com/Sirupsen/logrus"
-	"github.com/kidoman/go-steam"
+	log "github.com/sirupsen/logrus"
+	"github.com/cmjb/go-steam"
 )
 
 func Monitoring_Connection(ip string) {

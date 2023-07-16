@@ -3,4 +3,4 @@
 set -o allexport
 source .env
 set +o allexport
-go test pkg/*
+go test -v pkg/*

@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	log "github.com/Sirupsen/logrus"
-	"github.com/kidoman/go-steam"
+	"github.com/cmjb/go-steam"
+	log "github.com/sirupsen/logrus"
 	"regexp"
 	"strings"
 	"sync"
@@ -21,29 +21,29 @@ func heartbeat(ip string, pass string) {
 	server.sync.Lock()
 	defer server.sync.Unlock()
 	steam.SetLog(log.New())
+	opts := &steam.ConnectOptions{RCONPassword: pass}
 	for {
 
-		opts := &steam.ConnectOptions{RCONPassword: pass}
 		rcon, err := steam.Connect(ip, opts)
 		if err != nil {
 			fmt.Println(err)
+			break
 		}
-		defer rcon.Close()
 
-		for {
-			response, err := rcon.Send("status")
-			if err != nil {
-				fmt.Println(err)
-			}
-			scanPlayers(ip, response, pass)
-			time.Sleep(5 * time.Second)
+		response, err := rcon.Send("status")
+		if err != nil {
+			fmt.Println(err)
+			break
 		}
+		rcon.Close()
+		scanPlayers(ip, response, pass)
+		time.Sleep(5 * time.Second)
 	}
 }
 
 func scanPlayers(ip string, response string, pass string) {
 	if isSteamLobby(response) {
-		regEx := regexp.MustCompile(`\[U:1:[0-9]+`).FindAllString(response, -1)
+		regEx := regexp.MustCompile(`\[U:1:[0-9]+]`).FindAllString(response, -1)
 		err, tempgroup := getTempGroupByServerIp(ip)
 		if err != nil {
 			fmt.Println(err)
@@ -94,13 +94,15 @@ func kickUser(ip string, playerId string, pass string) {
 }
 
 func runHeartBeatOnAllServers() {
-	err, servers := getAllServers()
-	if err != nil {
-		return
-	}
-	for _, server := range servers {
-		heartbeat(server.ServerIp, server.Password)
-	}
+	go func() {
+		err, servers := getAllServers()
+		if err != nil {
+			return
+		}
+		for _, server := range servers {
+			heartbeat(server.ServerIp, server.Password)
+		}
+	}()
 }
 
 func runHeartBeatOnServer(ip string) {
