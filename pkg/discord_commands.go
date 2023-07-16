@@ -61,6 +61,12 @@ var (
 			DefaultMemberPermissions: &defaultMemberPermissions,
 			DMPermission:             &dmPermission,
 		},
+		{
+			Name:                     "force-heartbeat",
+			Description:              "Force Heartbeats",
+			DefaultMemberPermissions: &defaultMemberPermissions,
+			DMPermission:             &dmPermission,
+		},
 	}
 
 	rconCommand = discordgo.ApplicationCommand{
@@ -183,6 +189,15 @@ var (
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Content: "Ximf is the only one that can config this at the moment.",
+				},
+			})
+		},
+		"force-heartbeat": func(session *discordgo.Session, interaction *discordgo.InteractionCreate) {
+			runHeartBeatOnAllServers()
+			session.InteractionRespond(interaction.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Content: "Forcing heartbeat",
 				},
 			})
 		},

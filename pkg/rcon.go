@@ -6,19 +6,29 @@ import (
 	"github.com/kidoman/go-steam"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 )
 
+type ServerInstance struct {
+	IP   string
+	sync sync.Mutex
+}
+
 func heartbeat(ip string, pass string) {
+	var server ServerInstance
+	server.IP = ip
+	server.sync.Lock()
+	defer server.sync.Unlock()
+	steam.SetLog(log.New())
 	for {
-		steam.SetLog(log.New())
+
 		opts := &steam.ConnectOptions{RCONPassword: pass}
 		rcon, err := steam.Connect(ip, opts)
-		defer rcon.Close()
-
 		if err != nil {
 			fmt.Println(err)
 		}
+		defer rcon.Close()
 
 		for {
 			response, err := rcon.Send("status")
@@ -45,9 +55,9 @@ func scanPlayers(ip string, response string, pass string) {
 			}
 
 			for _, serverPlayerId := range regEx {
-				playerId := tempgroup.DiscordId
+				playerIds := tempgroup.DiscordId
 
-				for _, playerId := range playerId {
+				for _, playerId := range playerIds {
 					err, user := getUser(playerId)
 					if err != nil {
 						fmt.Println(err)
@@ -81,4 +91,18 @@ func kickUser(ip string, playerId string, pass string) {
 	if err != nil {
 		fmt.Println(err)
 	}
+}
+
+func runHeartBeatOnAllServers() {
+	err, servers := getAllServers()
+	if err != nil {
+		return
+	}
+	for _, server := range servers {
+		heartbeat(server.ServerIp, server.Password)
+	}
+}
+
+func runHeartBeatOnServer(ip string) {
+
 }

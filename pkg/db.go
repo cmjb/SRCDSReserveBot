@@ -106,7 +106,7 @@ func getAllServers() (error, []Server) {
 	defer db.Close()
 
 	var servers []Server
-	err := db.Model(&servers).Select()
+	err := db.Model(&servers).Where("active = TRUE").Select()
 
 	return err, servers
 }
