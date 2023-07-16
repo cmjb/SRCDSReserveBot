@@ -3,28 +3,28 @@ package main
 import (
 	"flag"
 	"fmt"
-	"time"
 	"os"
-    "os/signal"
-	"syscall"
-	"strings"
+	"os/signal"
 	"regexp"
 	"strconv"
+	"strings"
+	"syscall"
+	"time"
 	"unsafe"
 
-	log "github.com/Sirupsen/logrus"
-	"github.com/kidoman/go-steam"
 	steamidconv "github.com/Acidic9/go-steam/steamid"
+	log "github.com/sirupsen/logrus"
+	"github.com/cmjb/go-steam"
 )
 
 func Monitoring_Connection(ip string) {
 
 	c := make(chan os.Signal, 2)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
-	
+
 	pass := config.RconPassword
 	steam.SetLog(log.New())
-	
+
 	for {
 		opts := &steam.ConnectOptions{RCONPassword: pass}
 		rcon, err := steam.Connect(ip, opts)
@@ -47,7 +47,7 @@ func Monitoring_Connection(ip string) {
 }
 
 func Kick_User(ip string, id string) {
-	
+
 	pass := config.RconPassword
 	opts := &steam.ConnectOptions{RCONPassword: pass}
 	rcon, err := steam.Connect(ip, opts)
@@ -75,17 +75,17 @@ func Parse_Response_SteamID3(ip string, resp string) {
 		reg := regexp.MustCompile(`\[U:1:[0-9]+\]`).FindAllString(resp, -1)
 		fmt.Println(reg)
 		fmt.Println(tempgroup)
-		
+
 		if reg != nil {
 			fmt.Println(unsafe.Sizeof(tempgroup))
 			if len(tempgroup.DiscordId) == 0 {
-				Kick_All_Users(ip,reg);
+				Kick_All_Users(ip, reg)
 			}
 			for _, serverPlayerId := range reg {
 				fmt.Println(serverPlayerId)
-		
+
 				playerId := tempgroup.DiscordId
-				
+
 				for _, playerId := range playerId {
 					err, user := Get_User(playerId)
 					if err != nil {
@@ -104,7 +104,6 @@ func Parse_Response_SteamID3(ip string, resp string) {
 			}
 		}
 
-
 	}
 }
 
@@ -113,7 +112,6 @@ func Kick_All_Users(ip string, reg []string) {
 		Kick_User(ip, playerId)
 	}
 }
-
 
 func test() {
 	debug := flag.Bool("debug", false, "debug")

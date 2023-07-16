@@ -7,11 +7,11 @@ import (
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
+	"net"
 	"net/http"
-	"strings"
 	"regexp"
 	"strconv"
-	"net"
+	"strings"
 )
 
 type Response struct {
@@ -21,15 +21,14 @@ type Response struct {
 var discordGlobal *discordgo.Session
 
 type conf struct {
-	Token       string  `yaml:"token"`
-	Channel     string  `yaml:"channel"` 
-	LobbyRequestChannel     string  `yaml:"lobby_request_channel"`
-	LobbyStatusChannel     string  `yaml:"lobby_status_channel"`
-	ModeratorId			   string `yaml:"moderator_id"`
-	GuildId			   string `yaml:"guild_id"`
-	RconPassword		string `yaml:"rcon_password"`
+	Token               string `yaml:"token"`
+	Channel             string `yaml:"channel"`
+	LobbyRequestChannel string `yaml:"lobby_request_channel"`
+	LobbyStatusChannel  string `yaml:"lobby_status_channel"`
+	ModeratorId         string `yaml:"moderator_id"`
+	GuildId             string `yaml:"guild_id"`
+	RconPassword        string `yaml:"rcon_password"`
 }
-
 
 var config conf
 
@@ -51,9 +50,9 @@ func main() {
 	}
 
 	discordGlobal = discord
-	
+
 	discord.UpdateStatus(0, ".help for help")
-	
+
 	err = discordGlobal.Open()
 	if err != nil {
 		fmt.Println(err)
@@ -74,14 +73,14 @@ func main() {
 }
 
 func Start_Up() error {
-	err, servers := Get_All_Servers();
-	if(err != nil) {
+	err, servers := Get_All_Servers()
+	if err != nil {
 		fmt.Println(err)
 	}
 	for _, server := range servers {
 		Monitoring_Connection(server.ServerIp)
 	}
-	
+
 	return err
 }
 
@@ -103,16 +102,15 @@ func sendStatusMessage(s *discordgo.Session, msg string) {
 
 func handleTest(w http.ResponseWriter, r *http.Request) {
 
-	sendStatusMessage(discordGlobal, "Test successful!");
+	sendStatusMessage(discordGlobal, "Test successful!")
 
 	jsonRes := &Response{
 		Status: "OK",
 	}
 	jsonString, _ := json.Marshal(jsonRes)
-	fmt.Println(string(jsonString));
-	fmt.Fprintf(w, "%s", string(jsonString));
+	fmt.Println(string(jsonString))
+	fmt.Fprintf(w, "%s", string(jsonString))
 }
-
 
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
@@ -125,7 +123,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if strings.HasPrefix(m.Content, ".addserver") {
 
 		member := m.Member
-		
+
 		err, isModerator := Is_User_Moderator(member, c, s)
 
 		if err != nil {
@@ -161,7 +159,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if strings.HasPrefix(m.Content, ".steam") {
 
 		splitMessage := regexp.MustCompile("\\s").Split(m.Content, 2)
-		
+
 		if len(splitMessage) > 1 {
 			if strings.Contains(splitMessage[1], "https://steamcommunity.com/profiles/") {
 				sendChannelMessage(discordGlobal, c, "SteamId found.")
@@ -181,7 +179,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 					Insert_User(m.Author.ID, steam64idint64)
 					sendChannelMessage(discordGlobal, c, "Assigned Steam ID to user.")
 				}
-				
+
 			} else {
 				sendChannelMessage(discordGlobal, c, "No SteamId found, please use your steam community profiles url.")
 			}
@@ -192,7 +190,6 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if strings.HasPrefix(m.Content, ".-build-schema") {
-		
 
 		if err != nil {
 			sendStatusMessage(discordGlobal, "Panicking! Can't build schema because I can't see the channel!")
@@ -224,7 +221,6 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if strings.HasPrefix(m.Content, ".-restart-up") {
-		
 
 		if err != nil {
 			sendStatusMessage(discordGlobal, "Panicking! Can't build schema because I can't see the channel!")
@@ -256,7 +252,6 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if strings.HasPrefix(m.Content, ".-build-schema2") {
-		
 
 		if err != nil {
 			sendStatusMessage(discordGlobal, "Panicking! Can't build schema because I can't see the channel!")
